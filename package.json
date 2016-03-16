@@ -1,23 +1,22 @@
 {
-  "name": "grunt-contrib-jade",
-  "description": "Compile Jade templates",
-  "version": "1.0.0",
+  "name": "grunt-jade-polymer",
+  "description": "Compile Jade-based Polymer components",
+  "version": "0.0.1",
   "author": {
-    "name": "Grunt Team",
-    "url": "http://gruntjs.com/"
+    "name": "esanum GmbH",
+    "url": "http://www.esanum.de/"
   },
-  "repository": "gruntjs/grunt-contrib-jade",
+  "repository": "esanum/grunt-jade-polymer",
   "license": "MIT",
   "engines": {
     "node": ">=0.10.0"
   },
   "main": "tasks/jade.js",
   "scripts": {
-    "test": "grunt test"
   },
   "dependencies": {
-    "chalk": "^1.0.0",
-    "jade": "^1.11.0"
+    "chalk": "1.0.0",
+    "jade": "git://github.com/pugjs/pug.git#31966399f86b15159f2ff47dff99fbf4c92fadd5"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
@@ -33,5 +32,4 @@
   "files": [
     "tasks"
   ],
-  "appveyor_id": "p24tu0v9akk906yq"
 }

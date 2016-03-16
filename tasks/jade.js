@@ -8,6 +8,41 @@
 
 'use strict';
 
+function requireJade() {
+  var constantinople = require('constantinople'),
+    jade = require('jade');
+
+  var parser = jade.Parser.prototype,
+      runtime = jade.runtime,
+      attr = runtime.attr,
+      parseCode = parser.parseCode,
+      parseEach = parser.parseEach;
+
+  parser.parseCode = function () {
+    var tok = this.expect('code');
+    if (tok.isElse) throw new Error('else not supported by Polymer 1.3');
+    if (!tok.isIf) return parseCode.apply(this, arguments);
+
+    var val = tok.val.replace(/^if\b/, '').replace(/^\s*\(\s*([\s\S]*?)\s*\)\s*$/, '$1');
+    this.lexer.defer({ type: 'tag', val: 'template', line: tok.line, selfClosing: false });
+    this.lexer.defer({ type: 'attrs', val: null, attrs: [{ name: 'is', val: '"dom-if"', escaped: true }, { name: 'if', val: '"'+val+'"', escaped: true }], line: tok.line });
+    return this.parseTag();
+  }
+  parser.parseEach = function () {
+    var tok = this.expect('each');
+
+    this.lexer.defer({ type: 'tag', val: 'template', line: tok.line, selfClosing: false });
+    this.lexer.defer({ type: 'attrs', val: null, attrs: [{ name: 'is', val: '"dom-repeat"', escaped: true }, { name: 'items', val: '"{{'+tok.code+'}}"', escaped: true }, { name: 'as', val: '"'+tok.val+'"', escaped: true }], line: tok.line });
+    return this.parseTag();
+  }
+
+  runtime.attr = function (key, val, escaped, terse) {
+    return attr.apply(this, arguments);
+  }
+
+  return jade;
+}
+
 module.exports = function(grunt) {
   var lib = require('./lib/jade');
   var chalk = require('chalk');
@@ -61,7 +96,13 @@ module.exports = function(grunt) {
         options.filename = filepath;
 
         try {
-          var jade = f.orig.jade = require('jade');
+          var jade = f.orig.jade = requireJade();
+
+          jade.Parser.protoype.parseConditional = function () {
+            var tok = this.expect('if');
+            console.log(tok.val, typeof tok.val);
+          };
+
           if (typeof data === 'function') {
             // if data is function, bind to f.orig, passing f.dest and f.src
             f.orig.data = data.call(f.orig, f.dest, f.src);
